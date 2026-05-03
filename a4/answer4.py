@@ -108,61 +108,37 @@ robust_cost = base_plan[0] * 1.15
 print(f"   [成本扰动+15%] 修正造价: {robust_cost:.2f}万, 仍低于5000万预算上限。结论: 方案鲁棒性强。")
 
 # ==========================================
-# 5. 可视化 (精美风格)
+# 5. 可视化 (修正所有单位与错别字)
 # ==========================================
 # 图1：3D 帕累托前沿
-fig1 = plt.figure(figsize=(10, 7), dpi=300)
+fig1 = plt.figure(figsize=(10, 7))
 ax1 = fig1.add_subplot(111, projection='3d')
-sc1 = ax1.scatter(F[:, 0], F[:, 1], F[:, 2], c=F[:, 2], cmap='viridis', s=50, alpha=0.7)
-
-markers = ['o', 'D', 's']
-colors = ['red', 'orange', 'purple']
+p3d = ax1.scatter(F[:, 0], F[:, 1], F[:, 2], c=F[:, 1], cmap='viridis', alpha=0.5)
 for i, idx in enumerate(typical_indices):
-    ax1.scatter(F[idx, 0], F[idx, 1], F[idx, 2], s=150, marker=markers[i], 
-                color=colors[i], edgecolors='k', linewidths=2, label=plan_names[i])
-
-ax1.set_xlabel('总改造成本 (万元)', fontsize=11)
-ax1.set_ylabel('韧性综合增益', fontsize=11)
-ax1.set_zlabel('退水时间缩短量 (min)', fontsize=11)
-ax1.set_title('内涝韧性提升改造空间 - 多目标帕累托前沿', fontsize=14, fontweight='bold')
-ax1.legend(loc='upper left', frameon=True, fancybox=True, shadow=True)
-cbar = fig1.colorbar(sc1, ax=ax1, shrink=0.6, pad=0.1)
-cbar.set_label('退水时间缩短量 (min)', rotation=270, labelpad=20)
+    ax1.scatter(F[idx, 0], F[idx, 1], F[idx, 2], s=200, marker='*', edgecolors='k', label=plan_names[i])
+ax1.set_xlabel('总改造成本 (万元)')
+ax1.set_ylabel('韧性综合增益')
+ax1.set_zlabel('退水时间缩短量 (min)') # 修正单位
+ax1.set_title('内涝改造方案 - 多目标帕累托前沿')
+ax1.legend()
+plt.colorbar(p3d, label='韧性得分', shrink=0.6)
 plt.tight_layout()
-fig1.savefig('answer4图一_帕累托前沿.png', bbox_inches='tight')
+fig1.savefig('answer4图一_帕累托前沿.png', dpi=300, bbox_inches='tight')
 plt.close()
+print("已生成: answer4图一_帕累托前沿.png")
 
 # 图2：成本-效益 ROI 曲线
-fig2 = plt.figure(figsize=(10, 7), dpi=300)
-ax2 = fig2.add_subplot(111)
-
+fig2, ax2 = plt.subplots(figsize=(10, 6))
 sorted_F = F[np.argsort(F[:, 0])]
-ax2.plot(sorted_F[:, 0], sorted_F[:, 1], '--', color='#CCCCCC', alpha=0.5)
-sc2 = ax2.scatter(F[:, 0], F[:, 1], c=F[:, 2], cmap='viridis', s=40, alpha=0.8, label='可行解')
-
+ax2.plot(sorted_F[:, 0], sorted_F[:, 1], '--', color='gray', alpha=0.6)
+ax2.scatter(F[:, 0], F[:, 1], c=F[:, 2], cmap='plasma', s=30, label='可行解')
 for i, idx in enumerate(typical_indices):
-    ax2.scatter(F[idx, 0], F[idx, 1], s=200, marker=markers[i], 
-                color=colors[i], edgecolors='white', linewidths=2, label=plan_names[i])
-
-ax2.axvline(F[typical_indices[1], 0], color='#F4A261', linestyle='--', alpha=0.6)
-ax2.axhline(F[typical_indices[1], 1], color='#F4A261', linestyle='--', alpha=0.6)
-ax2.annotate('投资回报率(ROI)黄金拐点\n(最优决策区间)', 
-             xy=(F[typical_indices[1], 0], F[typical_indices[1], 1]),
-             xytext=(F[typical_indices[1], 0]+300, F[typical_indices[1], 1]+0.05),
-             arrowprops=dict(arrowstyle='->', color='#E63946'),
-             fontsize=10, color='#E63946', fontweight='bold')
-
-ax2.set_xlabel('总改造成本 (万元)', fontsize=12)
-ax2.set_ylabel('韧性综合增益 (分值)', fontsize=12)
-ax2.set_title('成本-韧性增益 2D 投影与决策边际效用分析', fontsize=14, fontweight='bold')
-ax2.legend(loc='upper left', frameon=True, fancybox=True, shadow=True)
-ax2.grid(True, linestyle='--', alpha=0.3)
-cbar2 = fig2.colorbar(sc2, ax=ax2, pad=0.03)
-cbar2.set_label('退水时间缩短量 (min)', rotation=270, labelpad=20)
+    ax2.scatter(F[idx, 0], F[idx, 1], s=250, marker='D', edgecolors='white', linewidths=2, label=plan_names[i])
+ax2.set_xlabel('总改造成本 (万元)')
+ax2.set_ylabel('韧性综合增益 (无量纲)')
+ax2.set_title('成本-韧性增益投影与投资回报率(ROI)分析')
+ax2.legend()
 plt.tight_layout()
-fig2.savefig('answer4图二_成本效益曲线.png', bbox_inches='tight')
+fig2.savefig('answer4图二_成本效益曲线.png', dpi=300, bbox_inches='tight')
 plt.close()
-
-print("\n✅ 美学出图完成！已在当前目录生成两张高清独立图表：")
-print("  - answer4图一_帕累托前沿.png")
-print("  - answer4图二_成本效益曲线.png")
+print("已生成: answer4图二_成本效益曲线.png")
