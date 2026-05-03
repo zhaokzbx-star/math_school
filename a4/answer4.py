@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from pymoo.core.problem import Problem
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.optimize import minimize
@@ -8,137 +7,170 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 # ==========================================
-# 0. 全局美学风格与中文配置
-# ==========================================
-plt.rcParams['font.sans-serif'] = ['SimHei'] 
-plt.rcParams['axes.unicode_minus'] = False
-sns.set_theme(style="whitegrid", font='SimHei')
-
-# ==========================================
 # 1. 定义多目标优化问题 (MO-MIP)
 # ==========================================
-class UrbanImprovementProblem(Problem):
+class UrbanResilienceProblem(Problem):
     def __init__(self):
-        # 决策变量边界 [管网(m), 调蓄池(座), 透水路面(m2), 预警(0-1)]
+        # 定义4个变量的上下界
+        # x1:管网扩容[0, 5000], x2:调蓄池[0, 3], x3:透水路面[0, 30000], x4:预警系统[0, 1]
         xl = np.array([0, 0, 0, 0])
         xu = np.array([5000, 3, 30000, 1])
-        super().__init__(n_var=4, n_obj=3, n_ieq_constr=1, xl=xl, xu=xu)
+        # n_var=变量数, n_obj=目标数, n_ieq_constr=不等式约束数
+        super().__init__(n_var=4, n_obj=3, n_ieq_constr=4, xl=xl, xu=xu)
 
     def _evaluate(self, x, out, *args, **kwargs):
-        x1, x2, x3, x4 = x[:, 0], np.round(x[:, 1]), x[:, 2], np.round(x[:, 3])
+        # --- 变量解码与类型约束 ---
+        x1 = x[:, 0]               # 连续变量
+        x2 = np.round(x[:, 1])     # 整数变量（离散化处理）
+        x3 = x[:, 2]               # 连续变量
+        x4 = np.round(x[:, 3])     # 0-1变量（离散化处理）
 
-        # --- 目标 1：最小化成本 (万元) ---
-        cost = 1.8 * x1 + 1200 * x2 + 0.35 * x3 + 80 * x4
-        f1 = cost
+        # --- 目标函数计算 ---
+        # 目标1：最小化成本 (万元)
+        f1 = 1.8 * x1 + 1200 * x2 + 0.35 * x3 + 80 * x4
         
-        # --- 目标 2：最大化韧性增益 (联动第二问权重与标准化) ---
-        # 权重 w_drain=0.13, w_store=0.11, w_emg=0.12 (示例参考表5)
-        # 指标提升量/总提升空间
-        gain_drain = np.minimum(32, 0.25 * x1 + 0.15 * x3) / 32.0
-        gain_store = np.minimum(2300, 800 * x2 + 0.1 * x3) / 2300.0
-        gain_emg = (4.8 * x4) / 7.0 # 12min降到5min，建设后降4.8min
-        
-        resilience_gain = 0.13 * gain_drain + 0.11 * gain_store + 0.12 * gain_emg
-        f2 = -resilience_gain # pymoo默认求最小，故取负
+        # 目标2：最大化韧性增益 (pymoo默认求最小，故加负号)
+        # 假设 AHP/熵权法得出的权重为 w1=0.4, w2=0.4, w3=0.2
+        w1, w2, w3 = 0.4, 0.4, 0.2
+        resilience_gain = w1 * ((0.25*x1 + 0.15*x3)/32) + \
+                          w2 * ((800*x2 + 0.1*x3)/2300) + \
+                          w3 * ((4.8*x4)/7)
+        f2 = -resilience_gain 
 
-        # --- 目标 3：最大化退水缩短时间 (min) ---
+        # 目标3：最大化退水缩短时间 (加负号转化为求最小)
         time_reduction = 0.15 * x1 + 0.2 * x2 + 0.1 * x3
         f3 = -time_reduction
 
         out["F"] = np.column_stack([f1, f2, f3])
-        # 约束条件：预算不超过5000万
-        out["G"] = cost - 5000
+
+        # --- 约束条件计算 (形式需满足 g(x) <= 0) ---
+        # 约束1：总预算不超过 5000 万元
+        g1 = f1 - 5000
+        # 约束2：排水达标率提升上限 <= 32
+        g2 = (0.25 * x1 + 0.15 * x3) - 32
+        # 约束3：调蓄容积提升上限 <= 2300
+        g3 = (800 * x2 + 0.1 * x3) - 2300
+        # 约束4：退水时间缩短上限 <= 25
+        g4 = (0.15 * x1 + 0.2 * x2 + 0.1 * x3) - 25
+
+        out["G"] = np.column_stack([g1, g2, g3, g4])
 
 # ==========================================
-# 2. 模型求解
+# 2. 算法配置与求解
 # ==========================================
-print("🚀 正在执行 NSGA-II 算法搜索帕累托最优解集...")
-problem = UrbanImprovementProblem()
+problem = UrbanResilienceProblem()
+# 初始化 NSGA-II 算法，种群规模 100
 algorithm = NSGA2(pop_size=100)
-res = minimize(problem, algorithm, ('n_gen', 300), seed=42, verbose=False)
 
-# 结果后处理
-F = res.F
-F[:, 1], F[:, 2] = -F[:, 1], -F[:, 2] # 恢复正值含义
-X = res.X
+print("🚀 正在运行 NSGA-II 算法求解多目标帕累托前沿...")
+res = minimize(problem,
+               algorithm,
+               ('n_gen', 200), # 迭代 200 代
+               seed=42,
+               verbose=False)
+
+# 提取非支配解集 (Pareto Front)
+# 注意：把 f2 和 f3 的负号转回来，恢复真实业务含义
+pareto_F = np.copy(res.F)
+pareto_F[:, 1] = -pareto_F[:, 1] # 真实韧性增益
+pareto_F[:, 2] = -pareto_F[:, 2] # 真实退水缩短时间
+pareto_X = np.copy(res.X)
+pareto_X[:, 1] = np.round(pareto_X[:, 1]) # 确保输出为整数
+pareto_X[:, 3] = np.round(pareto_X[:, 3]) # 确保输出为整数
 
 # ==========================================
-# 3. 典型决策方案聚类提取 (解决方案离散性问题)
+# 3. 基于 K-Means 的典型方案聚类提取
 # ==========================================
+# 将目标空间标准化以消除量纲影响，然后聚为3类
 scaler = StandardScaler()
-F_norm = scaler.fit_transform(F)
-kmeans = KMeans(n_clusters=3, random_state=42).fit(F_norm)
-typical_indices = [np.argmin(np.linalg.norm(F_norm - center, axis=1)) for center in kmeans.cluster_centers_]
-typical_indices = sorted(typical_indices, key=lambda i: F[i, 0]) # 按成本排序
+F_scaled = scaler.fit_transform(pareto_F)
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10).fit(F_scaled)
 
-plan_names = ["保守修补型", "均衡拐点型", "激进海绵型"]
-final_plans = []
+typical_indices = []
+for center in kmeans.cluster_centers_:
+    distances = np.linalg.norm(F_scaled - center, axis=1)
+    typical_indices.append(np.argmin(distances))
 
-print("\n🏆 --- 综合改造优选方案列表 (已工程化取整) ---")
+# 根据成本排序，依次命名为保守型、均衡型、激进型
+typical_indices = sorted(typical_indices, key=lambda idx: pareto_F[idx, 0])
+plan_names = ["保守防御型 (低成本)", "均衡拐点型 (高性价比)", "激进海绵型 (最高韧性)"]
+
+print("\n🏆 --- 推荐的三大典型综合改造方案 ---")
 for i, idx in enumerate(typical_indices):
-    sol_x = X[idx]
-    # 工程化取整：管网取10m整，路面取100m2整
-    p_pipe = int(np.round(sol_x[0]/10)*10)
-    p_pool = int(np.round(sol_x[1]))
-    p_pave = int(np.round(sol_x[2]/100)*100)
-    p_warn = int(np.round(sol_x[3]))
-    
-    # 重新核算数据确保绝对一致
-    real_cost = 1.8*p_pipe + 1200*p_pool + 0.35*p_pave + 80*p_warn
-    real_res = 0.13*(min(32, 0.25*p_pipe+0.15*p_pave)/32.0) + \
-               0.11*(min(2300, 800*p_pool+0.1*p_pave)/2300.0) + \
-               0.12*(4.8*p_warn/7.0)
-    real_time = 0.15*p_pipe + 0.2*p_pool + 0.1*p_pave
-    
-    final_plans.append([real_cost, real_res, real_time])
-    print(f"【{plan_names[i]}】成本: {real_cost:.2f}万 | 韧性增益: {real_res:.4f} | 退水缩短: {real_time:.2f}min")
-    print(f"   措施: 管网{p_pipe}m, 调蓄池{p_pool}座, 铺装{p_pave}m2, 预警{'建' if p_warn else '不建'}")
+    x_opt = pareto_X[idx]
+    f_opt = pareto_F[idx]
+    print(f"\n【{plan_names[i]}】")
+    print(f"👉 决策变量:")
+    print(f"   管网扩容长度: {x_opt[0]:.1f} m")
+    print(f"   新建调蓄池数: {int(x_opt[1])} 座")
+    print(f"   透水路面面积: {x_opt[2]:.1f} m²")
+    print(f"   智慧预警系统: {'建设' if x_opt[3]==1 else '不建'} (1套)")
+    print(f"📊 预期成效:")
+    print(f"   总改造成本: {f_opt[0]:.2f} 万元")
+    print(f"   韧性综合增益: {f_opt[1]:.4f} (归一化分值)")
+    print(f"   退水时间缩短: {f_opt[2]:.2f} 分钟")
 
 # ==========================================
-# 4. 鲁棒性分析 (针对均衡方案)
+# 4. 3D 帕累托前沿可视化 (直接放入论文的杀手锏图表)
 # ==========================================
-print("\n🛡️ 执行鲁棒性测试 (针对均衡拐点型方案)...")
-base_plan = final_plans[1]
-# 情景1：极端降雨导致设施效能下降20%
-robust_res = base_plan[1] * 0.8
-robust_time = base_plan[2] * 0.8
-print(f"   [效能扰动-20%] 韧性增益保持率: 80% (数值: {robust_res:.4f}), 依然显著优于基准。")
-# 情景2：施工成本上涨15%
-robust_cost = base_plan[0] * 1.15
-print(f"   [成本扰动+15%] 修正造价: {robust_cost:.2f}万, 仍低于5000万预算上限。结论: 方案鲁棒性强。")
+plt.rcParams['font.sans-serif'] = ['SimHei'] # 用来正常显示中文标签
+plt.rcParams['axes.unicode_minus'] = False
 
-# ==========================================
-# 5. 可视化 (修正所有单位与错别字)
-# ==========================================
-# 图1：3D 帕累托前沿
-fig1 = plt.figure(figsize=(10, 7))
-ax1 = fig1.add_subplot(111, projection='3d')
-p3d = ax1.scatter(F[:, 0], F[:, 1], F[:, 2], c=F[:, 1], cmap='viridis', alpha=0.5)
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# 绘制所有的 Pareto 解
+sc = ax.scatter(pareto_F[:, 0], pareto_F[:, 1], pareto_F[:, 2], 
+                c=pareto_F[:, 1], cmap='viridis', s=40, alpha=0.7, label='Pareto 解集')
+
+# 高亮标注三个典型方案
+colors = ['red', 'orange', 'fuchsia']
 for i, idx in enumerate(typical_indices):
-    ax1.scatter(F[idx, 0], F[idx, 1], F[idx, 2], s=200, marker='*', edgecolors='k', label=plan_names[i])
-ax1.set_xlabel('总改造成本 (万元)')
-ax1.set_ylabel('韧性综合增益')
-ax1.set_zlabel('退水时间缩短量 (min)') # 修正单位
-ax1.set_title('内涝改造方案 - 多目标帕累托前沿')
-ax1.legend()
-plt.colorbar(p3d, label='韧性得分', shrink=0.6)
+    ax.scatter(pareto_F[idx, 0], pareto_F[idx, 1], pareto_F[idx, 2], 
+               color=colors[i], s=150, edgecolors='k', marker='*', label=plan_names[i])
+
+ax.set_xlabel('总改造成本 (万元)')
+ax.set_ylabel('韧性综合增益')
+ax.set_zlabel('退水时间缩短量 (min)')
+ax.set_title('内涝韧性提升改造方案 - 3D 帕累托前沿分析', fontsize=14)
+ax.legend(loc='upper left')
+
+plt.colorbar(sc, label='韧性综合增益', pad=0.1)
 plt.tight_layout()
-fig1.savefig('answer4图一_帕累托前沿.png', dpi=300, bbox_inches='tight')
+plt.savefig("answer4图一_帕累托前沿.png", dpi=300, bbox_inches='tight')
 plt.close()
 print("已生成: answer4图一_帕累托前沿.png")
 
-# 图2：成本-效益 ROI 曲线
-fig2, ax2 = plt.subplots(figsize=(10, 6))
-sorted_F = F[np.argsort(F[:, 0])]
-ax2.plot(sorted_F[:, 0], sorted_F[:, 1], '--', color='gray', alpha=0.6)
-ax2.scatter(F[:, 0], F[:, 1], c=F[:, 2], cmap='plasma', s=30, label='可行解')
+# ==========================================
+# 5. 成本-效益 ROI 曲线可视化
+# ==========================================
+fig2 = plt.figure(figsize=(12, 7))
+ax2 = fig2.add_subplot(111)
+
+# 绘制所有可行解
+ax2.scatter(pareto_F[:, 0], pareto_F[:, 1], c=pareto_F[:, 2], 
+            cmap='viridis', s=50, alpha=0.6, label='可行解')
+
+# 绘制连接曲线（按成本排序）
+sorted_indices = np.argsort(pareto_F[:, 0])
+ax2.plot(pareto_F[sorted_indices, 0], pareto_F[sorted_indices, 1], 
+         '--', color='gray', alpha=0.5, linewidth=1.5)
+
+# 高亮标注三个典型方案
+markers = ['o', 'D', 's']
+plan_labels = ['保守修补型', '均衡拐点型', '激进海绵型']
 for i, idx in enumerate(typical_indices):
-    ax2.scatter(F[idx, 0], F[idx, 1], s=250, marker='D', edgecolors='white', linewidths=2, label=plan_names[i])
-ax2.set_xlabel('总改造成本 (万元)')
-ax2.set_ylabel('韧性综合增益 (无量纲)')
-ax2.set_title('成本-韧性增益投影与投资回报率(ROI)分析')
-ax2.legend()
+    ax2.scatter(pareto_F[idx, 0], pareto_F[idx, 1], 
+                color=colors[i], s=120, edgecolors='white', linewidth=2, 
+                marker=markers[i], label=plan_labels[i])
+
+ax2.set_xlabel('总改造成本 (万元)', fontsize=12)
+ax2.set_ylabel('韧性综合增益 (无量纲)', fontsize=12)
+ax2.set_title('成本-韧性增益投影与投资回报率(ROI)分析', fontsize=14)
+ax2.legend(loc='upper left')
+ax2.grid(True, linestyle='--', alpha=0.6)
+
 plt.tight_layout()
-fig2.savefig('answer4图二_成本效益曲线.png', dpi=300, bbox_inches='tight')
+plt.savefig("answer4图二_成本效益曲线.png", dpi=300, bbox_inches='tight')
 plt.close()
 print("已生成: answer4图二_成本效益曲线.png")
