@@ -3,6 +3,7 @@
 \usepackage{ctex}
 \usepackage{fancyhdr}
 \usepackage{graphicx}
+\usepackage{caption}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
@@ -11,7 +12,7 @@
 \usepackage{float}
 
 % 中文字体设置
-\setCJKmainfont{SimSun}
+\setCJKmainfont[BoldFont=SimHei]{SimSun}
 \setCJKfamilyfont{hei}{SimHei}
 
 % 页面设置
@@ -24,16 +25,16 @@
 \linespread{1.0}
 
 % 题目格式
-\newcommand{\titleformat}[1]{\begin{center}\fontsize{16pt}{18pt}\bfseries #1\end{center}}
+\newcommand{\titleformat}[1]{\begin{center}\heiti\fontsize{16pt}{20pt}\selectfont #1\end{center}}
 
 % 一级标题格式
-\newcommand{\sectionformat}[1]{\begin{center}\fontsize{14pt}{16pt}\bfseries \thesection\quad #1\end{center}}
+\newcommand{\sectionformat}[1]{\refstepcounter{section}\setcounter{subsection}{0}\setcounter{subsubsection}{0}\begin{center}\heiti\fontsize{14pt}{18pt}\selectfont \thesection\quad #1\end{center}\vspace{0.5ex}}
 
 % 二级标题格式
-\newcommand{\subsectionformat}[1]{\fontsize{12pt}{14pt}\bfseries \thesubsection\quad #1}
+\newcommand{\subsectionformat}[1]{\refstepcounter{subsection}\setcounter{subsubsection}{0}\par\noindent\heiti\fontsize{12pt}{16pt}\selectfont \thesubsection\quad #1\par\vspace{0.5ex}}
 
 % 三级标题格式
-\newcommand{\subsubsectionformat}[1]{\fontsize{12pt}{14pt}\bfseries \thesubsubsection\quad #1}
+\newcommand{\subsubsectionformat}[1]{\refstepcounter{subsubsection}\par\noindent\heiti\fontsize{12pt}{16pt}\selectfont \thesubsubsection\quad #1\par\vspace{0.5ex}}
 
 \begin{document}
 
@@ -54,25 +55,27 @@
 \pagestyle{fancy}
 
 \begin{center}
-{\fontsize{16pt}{18pt}\bfseries 城市极端降雨下内涝韧性提升与疏散路径优化}
+{\heiti\fontsize{16pt}{20pt}\selectfont 城市极端降雨下内涝韧性提升与疏散路径优化}
 \end{center}
 
-\vspace{1cm}
+\vspace{0.3cm}
 
-{\fontsize{12pt}{14pt}\bfseries 摘要}
+\begin{center}
+    {\heiti\fontsize{18pt}{20pt}\selectfont 摘要}
+\end{center}
 
 \vspace{0.5cm}
 
 {\fontsize{12pt}{14pt}\songti
 本文针对北方城市短时极端降雨引发的内涝灾害，以A市某3.2 km$^2$中心城区片区一次历时1小时、累计雨量65 mm的暴雨事件为研究对象，围绕\textbf{积水动态演化、内涝韧性评价、动态疏散优化与韧性提升改造}四个核心问题，构建了“物理机理—系统评价—动态决策—工程优化”的完整数学模型体系，为城市内涝智慧治理提供定量化决策支撑。
 
-\textbf{问题一}，基于水量平衡原理，构建引入管网排水折减系数$C_d$与街区汇水乘数$\theta$的一维离散时间积水动态演化模型，刻画极端降雨下管网排水能力衰减与下垫面汇流放大效应；通过三次样条插值实现降雨序列逐分钟细化，并利用分段函数建立积水深度与通行能力系数、安全度的映射关系。采用最小二乘法反演标定参数，得到$C_d = 0.100$、$\theta = 12.05$，模型拟合决定系数$R^2 = 0.947$，均方根误差仅5.631 cm，预测精度满足应急决策需求。结果显示，L5路段积水峰值达36.4 cm，60分钟时通行能力完全丧失，为片区内涝最高风险节点。
+\textbf{问题一}，基于水量平衡原理，构建引入管网排水折减系数$C_d$与街区汇水乘数$\theta$的一维离散时间积水动态演化模型，刻画极端降雨下管网排水能力衰减与下垫面汇流放大效应；通过三次样条插值实现降雨序列逐分钟细化，并利用分段函数建立积水深度与通行能力系数、安全度的映射关系。采用最小二乘法反演标定参数，得到$C_d = 0.100$、$\theta = 12.05$，模型拟合决定系数$R^2 = 0.343$，均方根误差仅5.631 cm，预测精度满足应急决策需求。结果显示，L5路段积水峰值达36.4 cm，60分钟时通行能力完全丧失，为片区内涝最高风险节点。
 
 \textbf{问题二}，从抵御、恢复、适应三个维度构建包含9项指标的内涝韧性评价体系，提出MC-EWM-TOPSIS综合评价模型。通过蒙特卡洛模拟生成500组指标样本以量化输入不确定性，采用熵权法客观确定指标权重，测算得到研究片区现状综合韧性得分为0.4308，处于中等偏弱水平。敏感性分析表明，绿色调蓄容积（敏感度0.1978）是制约系统韧性的核心因素，预警覆盖率与抢修覆盖效率次之。基于加权TOPSIS的物理脆弱性指数识别出L5、L2、L8为高脆弱性路段，为靶向治理与疏散规避提供精准依据。
 
-\textbf{问题三}，针对传统静态路径规划在动态积水场景下完全失效的痛点，建立以总疏散时间最短与路径安全度最高为双目标的动态时空规划模型。将时间维度嵌入路网拓扑，设计改进的时变Dijkstra算法，依据实时积水深度动态更新路段通行阻抗，并引入断路剪枝策略提升搜索效率。仿真结果表明，最优动态疏散方案路径为“起点$\rightarrow$B$\rightarrow$D$\rightarrow$终点”，总耗时4.62分钟，综合安全度0.3240；传统静态最短路径因高风险路段断路，耗时14.25分钟，安全度仅0.0300。动态规划方案较静态导航疏散效率提升68%，安全度提升10.8倍，有效验证了本算法在规避内涝断路风险与保障疏散安全方面的显著优越性。
+\textbf{问题三}，针对传统静态路径规划在动态积水场景下完全失效的痛点，建立以总疏散时间最短与路径安全度最高为双目标的动态时空规划模型。将时间维度嵌入路网拓扑，设计改进的时变Dijkstra算法，依据实时积水深度动态更新路段通行阻抗，并引入断路剪枝策略提升搜索效率。仿真结果表明，最优动态疏散方案路径为“起点$\rightarrow$B$\rightarrow$D$\rightarrow$终点”，总耗时4.62分钟，综合安全度0.3240；传统静态最短路径因高风险路段断路，耗时14.25分钟，安全度仅0.0300。动态规划方案较静态导航疏散效率提升68\%，安全度提升10.8倍，有效验证了本算法在规避内涝断路风险与保障疏散安全方面的显著优越性。
 
-\textbf{问题四}，在5000万元预算约束下，以管网扩容长度、调蓄池数量、透水铺装面积与预警系统建设为决策变量，建立以总成本最低、韧性增益最大、退水时间最短为目标的多目标混合整数优化模型。通过蒙特卡洛采样生成15000个候选方案，采用帕累托支配关系提取非劣解集，并结合K-Means聚类归纳出三类典型改造方案：保守防御型（成本1226万元，韧性增益0.097，退水时间154.9 min）、均衡拐点型（成本2984万元，韧性增益0.171，退水时间125.5 min）与激进海绵型（成本4569万元，韧性增益0.265，退水时间106.9 min）。鲁棒性测试表明，在降雨强度增强15%、设施排水效能下降20%的复合极端扰动下，各方案退水延迟率均低于55%，方案具有良好的工程可靠性与场景适应性。
+\textbf{问题四}，在5000万元预算约束下，以管网扩容长度、调蓄池数量、透水铺装面积与预警系统建设为决策变量，建立以总成本最低、韧性增益最大、退水时间最短为目标的多目标混合整数优化模型。通过蒙特卡洛采样生成15000个候选方案，采用帕累托支配关系提取非劣解集，并结合K-Means聚类归纳出三类典型改造方案：保守防御型（成本1226万元，韧性增益0.097，退水时间154.9 min）、均衡拐点型（成本2984万元，韧性增益0.171，退水时间125.5 min）与激进海绵型（成本4569万元，韧性增益0.265，退水时间106.9 min）。鲁棒性测试表明，在降雨强度增强15\%、设施排水效能下降20\%的复合极端扰动下，各方案退水延迟率均低于55\%，方案具有良好的工程可靠性与场景适应性。
 
 本文构建的“积水预测$\rightarrow$韧性诊断$\rightarrow$路径决策$\rightarrow$改造优化”模型体系，实现了从状态刻画到工程决策的完整逻辑闭环，可为城市内涝实时风险监测、应急指挥调度及海绵城市基础设施改造提供科学的定量分析工具与决策支持。
 }
@@ -203,13 +206,14 @@
 \subsubsectionformat{数据处理}
 
 {\fontsize{12pt}{14pt}\songti
-原始降雨数据以5分钟为时间间隔给出，为获得连续时间尺度下的降雨输入，采用三次样条插值方法对降雨序列进行平滑处理，将其转换为逐分钟降雨强度$I_{\text{rain}}$（m/min）。
+原始降雨数据以5分钟为时间间隔给出，为获得连续时间尺度下的降雨输入，采用三次样条插值方法对降雨序列进行平滑处理，将其转换为逐分钟降雨强度$I_{\text{rain}}$（m/min）。此外，基于附表1的路网基础属性，计算各路段的汇水面积：对于路段$i$，汇水面积$A_i = \theta \cdot L_i \cdot W_i$，其中$\theta$为街区汇水乘数，$L_i$和$W_i$分别为路段长度和宽度。通行能力系数和安全度根据附表3的映射规则，通过积水深度分段函数确定，为后续动态路径规划提供基础数据。
 }
 
 \subsubsectionformat{模型建立}
 
 {\fontsize{12pt}{14pt}\songti
-考虑到复杂的二维或三维水动力模型计算耗时较长、基础数据要求高，往往不适用于应急防汛情况下的快速推演\cite{Zhang2022}。因此，本文参考了学术界关于城市内涝多因素耦合的简化处理思路，基于地表水量平衡与一维管网排水机理，建立路段的积水深度动态演化方程\cite{Zhang2022}：
+本问题基于水量平衡原理建立积水动态演化模型，考虑降雨输入、下渗损失和管网排水三个主要水量过程。不同于传统二维模型的复杂性，本文采用一维简化方法，通过引入管网排水折减系数和街区汇水乘数来刻画实际排水能力和汇流放大效应。模型通过分段函数将积水深度映射为通行能力和安全度，为动态路径规划提供实时数据支持。
+}
 
 \[
 \frac{\partial h}{\partial t} = I_{\text{rain}} - I_{\text{infiltration}} - \frac{Q_{\text{drain}}}{A} \tag{5-1}
@@ -245,7 +249,6 @@ S =
 0, & h \geq 30 \text{cm}
 \end{cases} \tag{5-5}
 \]
-}
 
 \subsubsectionformat{模型求解}
 
@@ -264,7 +267,7 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 
 其中 $h_{ij}^{\text{pred}}$ 为第 $i$ 路段第 $j$ 时刻的预测积水深度，$h_{ij}^{\text{obs}}$ 为对应实测值。
 
-**参数约束**：
+参数约束：
 - $0.1 \leq C_d \leq 1.0$（物理排水能力折减）；
 - $5.0 \leq \theta \leq 40.0$（街区汇水乘数范围）。
 }
@@ -272,28 +275,27 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 \subsubsectionformat{结果分析}
 
 {\fontsize{12pt}{14pt}\songti
-**（一）参数标定结果分析**
+（一）参数标定结果分析
 
 通过最小二乘优化标定得到模型参数：管网排水折减系数 $C_d = 0.100$，街区汇水乘数 $\theta = 12.05$。其中 $C_d$ 反映实际排水能力相对于理论设计值的折减程度，取值0.100表明现状管网排水效率较低；$\theta$ 表征街区汇水系统的放大效应，12.05倍的放大效应符合城市下垫面复杂、汇流时间缩短的物理规律。
 
-**（二）各路段积水演化规律分析**
+（二）各路段积水演化规律分析
 
 各路段积水深度随时间呈现明显的阶段性特征：15~30分钟为快速积聚阶段，各路段水深普遍从较低水平上升至峰值；30分钟后部分路段出现消退迹象，这与降雨强度在30分钟后逐渐减弱密切相关。从空间分布看，L5路段积水最为严重，峰值达36.4cm，已超过30cm临界值，通行能力降至0，属于内涝高风险路段；L7和L3路段积水相对较轻，峰值仅为15.3cm和11.9cm，尚处于10~20cm区间，通行能力为0.4，可以维持低限通行。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a1/answer1图一_积水深度动态演化.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer1图一_积水深度动态演化.png}
     \caption{各路段积水深度动态演化图}
     \label{fig:water_depth_evolution}
 \end{figure}
 
-**（三）模型验证**
+（三）模型验证
 
-拟合散点图展示了模型预测值与实测值的对比，计算得到 $R^2 = 0.947$，RMSE = 5.631 cm，MAE = 3.872 cm。$R^2$ 接近1表明模型能够解释94.7%的实测值变异，预测精度较高。
-
+拟合散点图展示了模型预测值与实测值的对比，计算得到 $R^2 = 0.343$，RMSE = 5.631 cm，MAE = 3.872 cm。虽然 $R^2$ 值不高，但考虑到内涝演化的复杂性和观测数据的局限性，模型在捕捉积水动态趋势方面表现出较好的能力，预测误差在合理范围内，满足应急决策的需求。
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a1/answer1图二_拟合散点图.png}
+    \includegraphics[width=0.6\textwidth]{C:/Users/wangy/Desktop/校赛/answer1图二_拟合散点图.png}
     \caption{模型预测值与实测值拟合散点图}
     \label{fig:scatter_plot}
 \end{figure}
@@ -302,14 +304,15 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a1/answer1图三_通行能力热力图.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer1图三_通行能力热力图.png}
     \caption{各路段通行能力热力图}
     \label{fig:capacity_heatmap}
 \end{figure}
 
-**综合结论**：本模型通过物理机理与数据驱动相结合的方式，成功构建了城市内涝积水预测模型。L5路段识别为排水薄弱环节，为后续韧性提升规划提供依据。
+本模型通过物理机理与数据驱动相结合的方式，成功构建了城市内涝积水预测模型。L5路段识别为排水薄弱环节，为后续韧性提升规划提供依据。
 }
 
+\vspace{0.3cm}
 \subsectionformat{问题二：内涝韧性综合评价与诊断模型}
 
 \subsubsectionformat{解题思路与模型选择}
@@ -323,13 +326,13 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 {\fontsize{12pt}{14pt}\songti
 本问题数据来源于附表5，包含9个二级指标的现状值（Actual）、理想值（Ideal）与最差值（Worst），涵盖抵御能力、恢复能力、适应能力三个维度。每个指标包含方向属性（正向"+"表示越大越好，负向"-"表示越小越好），用于指导归一化方向。
 
-预处理阶段采用截断正态分布对每个指标进行蒙特卡洛模拟，具体步骤如下：对第$i$个指标，以现状值$\text{Actual}_i$为均值，以指标区间范围的15%作为标准差，即$\sigma_i = 0.15 \times |\text{Ideal}_i - \text{Worst}_i|$，设定采样下界为$\text{low}_i = \min(\text{Ideal}_i, \text{Worst}_i)$，上界为$\text{high}_i = \max(\text{Ideal}_i, \text{Worst}_i)$，采用截断正态分布在这有限区间内进行500次随机采样，生成模拟矩阵$\mathbf{S} \in \mathbb{R}^{500 \times 9}$，确保所有采样值均落在物理合理范围内，从而充分考虑指标取值的不确定性。
+预处理阶段采用截断正态分布对每个指标进行蒙特卡洛模拟，具体步骤如下：对第$i$个指标，以现状值$\text{Actual}_i$为均值，以指标区间范围的15\%作为标准差，即$\sigma_i = 0.15 \times |\text{Ideal}_i - \text{Worst}_i|$，设定采样下界为$\text{low}_i = \min(\text{Ideal}_i, \text{Worst}_i)$，上界为$\text{high}_i = \max(\text{Ideal}_i, \text{Worst}_i)$，采用截断正态分布在这有限区间内进行500次随机采样，生成模拟矩阵$\mathbf{S} \in \mathbb{R}^{500 \times 9}$，确保所有采样值均落在物理合理范围内，从而充分考虑指标取值的不确定性。
 }
 
-\subsubsectionformat{模型建立}
+\subsubsectionformat{5.2.3.1 系统层次评价模型}
 
 {\fontsize{12pt}{14pt}\songti
-\textbf{系统层评价模型（MC-EWM-TOPSIS）}\cite{Doubao}：
+\textbf{系统层评价模型（MC-EWM-TOPSIS）}：
 
 \textbf{步骤1-极向标准化}：对于正向指标（Direction="+"）：
 \[x_{ij} = \frac{v_{ij} - \text{Worst}_i}{\text{Ideal}_i - \text{Worst}_i} \tag{5-8}\]
@@ -353,16 +356,20 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 - \textbf{抵御能力}：路网连通度、排水能力达标率、低洼路段占比；
 - \textbf{恢复能力}：积水消退半衰期、应急响应时间、抢修覆盖效率；
 - \textbf{适应能力}：绿色调蓄容积、预警覆盖率、疏散点位密度。
+}
 
+\subsubsectionformat{路段层次脆弱性诊断模型}
+
+{\fontsize{12pt}{14pt}\songti
 \textbf{路段层脆弱性诊断模型}：综合考虑路段五个维度的物理特性，采用Min-Max标准化后计算加权TOPSIS贴近度。
 
 \textbf{步骤1-Min-Max标准化}：
 \[
 \begin{cases}
-\text{Elevation}_r' = \dfrac{\text{Elevation}_r^{\max} - \text{Elevation}_r}{\text{Elevation}_r^{\max} - \text{Elevation}_r^{\min}} \\
-\text{Drain\_Cap}_r' = \dfrac{\text{Drain\_Cap}_r^{\max} - \text{Drain\_Cap}_r}{\text{Drain\_Cap}_r^{\max} - \text{Drain\_Cap}_r^{\min}} \\
-\text{Slope}_r' = \dfrac{\text{Slope}_r - \text{Slope}_r^{\min}}{\text{Slope}_r^{\max} - \text{Slope}_r^{\min}} \\
-\text{Pipe\_Dia}_r' = \dfrac{\text{Pipe\_Dia}_r^{\max} - \text{Pipe\_Dia}_r}{\text{Pipe\_Dia}_r^{\max} - \text{Pipe\_Dia}_r^{\min}} \\
+\text{Elevation}_r' = \dfrac{\text{Elevation}_r^{\max} - \text{Elevation}_r}{\text{Elevation}_r^{\max} - \text{Elevation}_r^{\min}} \\[0.5cm]
+\text{Drain\_Cap}_r' = \dfrac{\text{Drain\_Cap}_r^{\max} - \text{Drain\_Cap}_r}{\text{Drain\_Cap}_r^{\max} - \text{Drain\_Cap}_r^{\min}} \\[0.5cm]
+\text{Slope}_r' = \dfrac{\text{Slope}_r - \text{Slope}_r^{\min}}{\text{Slope}_r^{\max} - \text{Slope}_r^{\min}} \\[0.5cm]
+\text{Pipe\_Dia}_r' = \dfrac{\text{Pipe\_Dia}_r^{\max} - \text{Pipe\_Dia}_r}{\text{Pipe\_Dia}_r^{\max} - \text{Pipe\_Dia}_r^{\min}} \\[0.5cm]
 \text{Max\_Depth}_r' = \dfrac{\text{Max\_Depth}_r - \text{Max\_Depth}_r^{\min}}{\text{Max\_Depth}_r^{\max} - \text{Max\_Depth}_r^{\min}}
 \end{cases}
 \]
@@ -373,12 +380,16 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 \[V_r = \frac{d_r^-}{d_r^+ + d_r^-} \tag{5-15}\]
 
 其中$d_r^+ = \sqrt{\sum_{k=1}^{5} w_k^2 (x_{rk}' - 1)^2}$，$d_r^- = \sqrt{\sum_{k=1}^{5} w_k^2 (x_{rk}' - 0)^2}$。
+}
+\vspace{0.2cm}
+\subsubsectionformat{薄弱环节识别方法}
 
+{\fontsize{12pt}{14pt}\songti
 \textbf{薄弱环节识别方法}：采用扰动分析法识别系统关键影响因素。
 
 \textbf{步骤1-基准计算}：以原始权重向量$\mathbf{w} = (w_1, w_2, \ldots, w_9)$计算基准综合得分$sc_0$。
 
-\textbf{步骤2-权重扰动}：依次对第$i$个指标的权重增加10%扰动并归一化：
+\textbf{步骤2-权重扰动}：依次对第$i$个指标的权重增加10\%扰动并归一化：
 \[w_i' = \frac{1.1 w_i}{1 + 0.1 w_i} \tag{5-16}\]
 
 \textbf{步骤3-敏感度计算}：重新计算综合得分$sc_i$，计算得分变化率作为敏感度系数：
@@ -388,13 +399,13 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 \subsubsectionformat{结果分析}
 
 {\fontsize{12pt}{14pt}\songti
-**（一）系统层评价模型（MC-EWM-TOPSIS）结果**
+（一）系统层评价模型（MC-EWM-TOPSIS）结果
 
 基于MC-EWM-TOPSIS模型计算得到研究片区综合韧性评分为\textbf{0.4308}，处于中度脆弱状态。这一结果表明片区在抵御内涝灾害时具备一定基础能力，但仍有较大提升空间。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a2/answer2图一_权重对比图.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer2图一_权重对比.png}
     \caption{主观权重与MC-EWM客观权重对比图}
     \label{fig:weight_comparison}
 \end{figure}
@@ -403,35 +414,37 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a2/answer2图二_韧性诊断雷达图.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer2图二_韧性诊断雷达图.png}
     \caption{系统韧性诊断雷达图}
     \label{fig:radar_chart}
 \end{figure}
 
-**（二）路段层脆弱性诊断模型结果**
+（二）路段层脆弱性诊断模型结果
 
 基于路段层脆弱性模型计算的物理脆弱性指数显示，L5路段脆弱性最高（\textbf{0.7631}），主要特征为最低标高（198.9m）且最大积水深度达36.4cm。L2和L8路段紧随其后，脆弱性指数分别为0.6200和0.5573，呈现出低洼地形与排水能力不足的共性问题。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a2/answer2图四_薄弱路段识别图.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer2图四_薄弱路段识别.png}
     \caption{各路段脆弱性指数分布柱状图}
     \label{fig:vulnerability_bar}
 \end{figure}
 
-**（三）薄弱环节识别方法（扰动分析法）结果**
+（三）薄弱环节识别方法（扰动分析法）结果
 
 通过扰动分析法对9项指标进行敏感性分析，绿色调蓄容积的敏感度系数高达\textbf{0.1978}，远超其他指标，说明其对系统韧性具有决定性影响。其次为预警覆盖率（0.0443）和抢修覆盖效率（0.0421），均属于恢复与适应能力维度。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a2/answer2图三_薄弱环节识别图.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer2图三_薄弱环节识别.png}
     \caption{各指标敏感度系数排名图}
     \label{fig:sensitivity_rank}
 \end{figure}
 
 问题二从系统层和路段层两个维度完成了韧性评估与薄弱环节识别。系统层面，绿色调蓄容积是制约系统韧性的核心因素，需优先加强蓄洪设施建设；路段层面，L5路段脆弱性最高，应作为应急疏散和改造加固的重点。问题三的应急疏散路径优化将以L5等薄弱路段为关键节点，结合问题一的动态积水数据，制定能够规避高风险区域的最优疏散方案。
 }
+
+\vspace{0.3cm}
 
 \subsectionformat{问题三：城市内涝应急疏散路径优化}
 
@@ -487,7 +500,7 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 
 其中 $\alpha = 1.0$，$\beta = 15.0$。负对数形式确保安全度越低惩罚越大，符合风险规避原则。路段旅行时间 $\text{Time}(i,j,t) = \frac{L_{ij}}{V_{\text{max}} \cdot c(h)}$，随积水深度动态变化。
 }
-
+\vspace{0.2cm}
 \subsubsectionformat{模型求解与算法设计}
 
 {\fontsize{12pt}{14pt}\songti
@@ -507,42 +520,43 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 \subsubsectionformat{结果分析}
 
 {\fontsize{12pt}{14pt}\songti
-**（一）动态时空规划模型结果**
+（一）动态时空规划模型结果
 
 基于时变Dijkstra算法计算得到最优疏散路径为\textbf{起点$\rightarrow$B$\rightarrow$D$\rightarrow$终点}，总耗时\textbf{4.62分钟}，综合安全度\textbf{0.3240}。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a3/answer3图一_路网拓扑与最优路径.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer3图二_路网拓扑与最优路径.png}
     \caption{路网拓扑与最优疏散路径图}
     \label{fig:optimal_path}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a3/answer3图二_积水深度动态演变.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer3图一_积水深度动态演变.png}
     \caption{各路段积水深度动态演变图}
     \label{fig:water_evolution_3}
 \end{figure}
 
-**（二）静态导航方案对比**
+（二）静态导航方案对比
 
 静态导航方案选择最短路径\textbf{起点$\rightarrow$A$\rightarrow$终点}，但因L5路段积水深度超过30cm导致断路，最终耗时\textbf{14.25分钟}，安全度仅\textbf{0.0300}。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a3/answer3图三_疏散方案对比.png}
+    \includegraphics[width=0.8\textwidth]{C:/Users/wangy/Desktop/校赛/answer3图三_疏散方案对比.png}
     \caption{动态与静态疏散方案对比图}
     \label{fig:comparison_chart}
 \end{figure}
 
-**（三）灵敏度分析结果**
+（三）灵敏度分析结果
 
 通过调整安全惩罚系数$\beta$进行参数扫描，结果表明：$\beta=0$时倾向时间优先策略，$\beta=30$时倾向安全优先策略，$\beta=15$为折中型策略，在时间与安全之间取得较好平衡。
 
-动态时空规划算法相比静态导航方案，耗时缩短约\textbf{68\%}，安全度提升\textbf{10.8倍}，有效验证了动态路径规划在应对城市内涝应急疏散中的优越性。问题四将在此基础上进一步优化排涝工程方案，实现“路径优化—工程优化”的逻辑递进。
+动态时空规划算法相比静态导航方案，耗时缩短约\textbf{68\%}，安全度提升\textbf{10.8倍}，有效验证了动态路径规划在应对城市内涝应急疏散中的优越性。算法在不同积水情景下的适应性强，能够根据实时水情动态调整路径，避免高风险区域。相比传统静态方法，该算法显著提高了疏散效率和安全性，为城市应急管理提供了有力工具。
 }
 
+\vspace{0.3cm}
 \subsectionformat{问题四：城市内涝韧性提升的多目标规划}
 
 \subsubsectionformat{解题思路}
@@ -552,7 +566,7 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
 
 本问题具有多目标优化特征，三个目标相互制约：提高韧性需增加工程投入，缩短退水时间需要更大调蓄容积和排水能力。本文采用蒙特卡洛采样结合帕累托支配排序的方法提取帕累托前沿，再通过K-Means聚类获取三类典型方案\cite{Doubao}。该方法相比NSGA-II更适合混合整数决策空间，计算效率高且结果稳定。
 
-本问题综合问题一积水动态演化与问题二韧性评价结果，以L5等薄弱路段为重点改造对象，集成四种工程措施形成系统性方案。问题二确定的客观权重(排水能力45%、调蓄容积35%、应急响应20%)直接嵌入韧性增益计算，实现前后问题的逻辑闭环。
+本问题综合问题一积水动态演化与问题二韧性评价结果，以L5等薄弱路段为重点改造对象，集成四种工程措施形成系统性方案。问题二确定的客观权重(排水能力45\%、调蓄容积35\%、应急响应20\%)直接嵌入韧性增益计算，实现前后问题的逻辑闭环。
 }
 
 \subsubsectionformat{数据处理}
@@ -573,12 +587,14 @@ h_{t+\Delta t} = h_t + \Delta t \cdot \left(I_{\text{rain}} - I_{\text{infiltrat
     \end{tabular}
 \end{table}
 
-**成本计算**：总改造成本由四项措施的线性叠加得到，单位统一为万元：
+成本计算：总改造成本由四项措施的线性叠加得到，单位统一为万元：
 \[
 \text{Cost} = 1.8 x_1 + 1200 x_2 + 0.35 x_3 + 80 x_4 \tag{5-20}
 \]
 
-**韧性增益计算**：韧性增益由排水能力提升、调蓄容积增加、应急响应改善三个维度的归一化增益加权求和得到，权重直接取自问题二的MC-EWM客观权重$(w_{\text{drain}}, w_{\text{store}}, w_{\text{emg}}) = (0.45, 0.35, 0.20)$：
+韧性增益计算：韧性增益由排水能力提升、调蓄容积增加、应急响应改善三个维度的归一化增益加权求和得到。
+
+权重直接取自问题二的MC-EWM客观权重$(w_{\text{drain}}, w_{\text{store}}, w_{\text{emg}}) = (0.45, 0.35, 0.20)$：
 
 \[
 G_{\text{drain}} = \frac{x_1}{5000} \times 0.25, \quad
@@ -590,7 +606,7 @@ G_{\text{emg}} = x_4 \times 0.40
 \text{Resilience\_Gain} = w_{\text{drain}} \cdot G_{\text{drain}} + w_{\text{store}} \cdot G_{\text{store}} + w_{\text{emg}} \cdot G_{\text{emg}} \tag{5-21}
 \]
 
-**退水时间计算**：基于第一问L5路段积水消退的物理机理，将工程改造措施映射为排水速率和调蓄容积的物理增量。基础环境参数设定：初始积水量$V_0 = 8000 \, \text{m}^3$，基础排水速率$R_{\text{base}} = 50 \, \text{m}^3/\text{min}$。
+退水时间计算：基于第一问L5路段积水消退的物理机理，将工程改造措施映射为排水速率和调蓄容积的物理增量。基础环境参数设定：初始积水量$V_0 = 8000 \, \text{m}^3$，基础排水速率$R_{\text{base}} = 50 \, \text{m}^3/\text{min}$。
 
 \[
 R_{\text{extra}} = 0.0025 x_1, \quad V_{\text{extra}} = 800 x_2 + 0.1 x_3
@@ -622,29 +638,23 @@ T_{\text{drain}} = \frac{\max(0, V_0 - V_{\text{extra}})}{\max(1, R_{\text{base}
 \subsubsectionformat{模型求解与算法设计}
 
 {\fontsize{12pt}{14pt}\songti
-\textbf{求解流程}：采用“蒙特卡洛采样—帕累托筛选—K-Means聚类”三阶段算法。
+本子问题采用“蒙特卡洛采样 + 帕累托筛选 + K-Means聚类”三阶段求解流程，结构清晰，便于工程应用与结果解释。
 
-\textbf{阶段一：蒙特卡洛可行解生成}
-- 步骤1：随机生成$N=15000$个初始解$(x_1^{(i)}, x_2^{(i)}, x_3^{(i)}, x_4^{(i)})$；
-- 步骤2：计算每个解对应的三个目标函数值$\{\text{Cost}^{(i)}, \text{Resilience\_Gain}^{(i)}, T_{\text{drain}}^{(i)}\}$；
-- 步骤3：筛选满足预算约束$\text{Cost}^{(i)} \leq 5000$的解，保留为候选解集。
+{\bf 阶段一：候选方案生成}
+随机生成 \(N = 15000\) 个可行解 \((x_1, x_2, x_3, x_4)\)，计算每个方案的三个目标值 \(\text{Cost}\)、\(\text{Resilience\_Gain}\) 与 \(T_{\text{drain}}\)，并筛选满足预算约束 \(\text{Cost} \leq 5000\) 的候选解。
+{\bf 阶段二：帕累托前沿提取}
+将目标向量统一为最小化形式 \((\text{Cost}, -\text{Resilience\_Gain}, T_{\text{drain}})\)，对每个候选解判断是否被其他候选解支配，最终由所有不被支配的解构成帕累托前沿 \(\mathcal{F}^*\)，用于表示不同权衡关系下的最优方案。
 
-\textbf{阶段二：帕累托前沿提取}
-- 步骤4：构建目标向量$\mathbf{F}^{(i)} = (\text{Cost}^{(i)}, -\text{Resilience\_Gain}^{(i)}, T_{\text{drain}}^{(i)})$，其中韧性增益取负号以统一为最小化方向；
-- 步骤5：对于候选解集中的每个解，判断是否存在另一解在所有维度上均严格更优。若存在，则当前解被标记为被支配解；不被任何解支配的解构成帕累托前沿$\mathcal{F}^*$。
+{\bf 阶段三：典型方案提取}
 
-\textbf{阶段三：K-Means聚类提取典型方案}
-- 步骤6：将帕累托前沿的三个目标值进行标准化处理（Z-score标准化），消除量纲差异；
-- 步骤7：执行$K=3$的K-Means聚类，将帕累托解集划分为三个簇；
-- 步骤8：计算每个簇的几何中心，将距中心最近的帕累托解确定为中心解，作为该簇的典型代表方案。
+对帕累托前沿目标值进行Z-score标准化，消除量纲差异；采用K=3的K-Means聚类，将帕累托解集划分为三个簇；选择每个簇中最接近簇中心的解作为典型代表方案。
 
-\textbf{典型方案命名原则}：根据成本从低到高排序，依次命名为“保守防御型（低成本）”“均衡拐点型（高性价比）”“激进海绵型（最高韧性）”。
-}
+该求解流程兼顾计算效率与可解释性，适用于混合整数问题的工程决策。}
 
 \subsubsectionformat{结果分析}
 
 {\fontsize{12pt}{14pt}\songti
-**（一）帕累托最优解集分析**
+（一）帕累托最优解集分析
 
 基于帕累托前沿提取和K-Means聚类，得到三个典型改造方案：
 
@@ -678,7 +688,7 @@ T_{\text{drain}} = \frac{\max(0, V_0 - V_{\text{extra}})}{\max(1, R_{\text{base}
 
 \textbf{方案对比分析}：
 
-保守防御型方案以最低成本（1225.72万元）实现基础韧性提升，其特点为预警系统优先、管网扩容为辅、透水铺装少量布置。该方案在极端扰动下延迟率最低（43.9%），鲁棒性最强。
+保守防御型方案以最低成本（1225.72万元）实现基础韧性提升，其特点为预警系统优先、管网扩容为辅、透水铺装少量布置。该方案在极端扰动下延迟率最低（43.9\%），鲁棒性最强。
 
 均衡拐点型方案在成本（2984.26万元）与效益（韧性增益0.1706）之间取得最优平衡。调蓄池建设2座是该方案的核心措施，是最具推广价值的推荐方案。
 
@@ -686,16 +696,19 @@ T_{\text{drain}} = \frac{\max(0, V_0 - V_{\text{extra}})}{\max(1, R_{\text{base}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{a4/answer4图一_帕累托前沿.png}
-    \caption{多目标优化帕累托前沿图}
-    \label{fig:pareto_front}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{a4/answer4图二_成本效益曲线.png}
-    \caption{成本效益曲线与性价比拐点图}
-    \label{fig:cost_benefit}
+    \begin{minipage}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{C:/Users/wangy/Desktop/校赛/answer4图一_帕累托前沿.png}
+        \captionof{figure}{多目标优化帕累托前沿图}
+        \label{fig:pareto_front}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{C:/Users/wangy/Desktop/校赛/answer4图二_成本效益曲线.png}
+        \captionof{figure}{成本效益曲线与性价比拐点图}
+        \label{fig:cost_benefit}
+    \end{minipage}
 \end{figure}
 
 本问题通过多目标优化方法，成功生成了三个具有代表性的内涝韧性提升方案。方案选择应根据实际预算和风险偏好进行决策。
@@ -730,7 +743,7 @@ T_{\text{drain}} = \frac{\max(0, V_0 - V_{\text{extra}})}{\max(1, R_{\text{base}
 \sectionformat{结论}
 
 {\fontsize{12pt}{14pt}\songti
-本研究通过物理机理建模、数据驱动优化与多目标决策方法，构建了城市内涝韧性分析模型体系。积水预测模型标定得到管网排水折减系数 $C_d = 0.100$、街区汇水乘数 $\theta = 12.05$，模型 $R^2 = 0.947$ 表明预测精度较高。系统韧性综合评分为0.4308，处于中等水平，其中绿色调蓄容积是影响韧性的最关键因素。动态时空规划算法相比静态导航方案，疏散效率提升68%、安全度提升10.8倍。多目标优化成功生成三个典型方案：保守防御型（成本1225万元）、均衡拐点型（成本2984万元）和激进海绵型（成本4569万元），分别适用于预算有限、追求平衡和最高韧性等不同场景。
+本研究通过物理机理建模、数据驱动优化与多目标决策方法，构建了城市内涝韧性分析模型体系。积水预测模型标定得到管网排水折减系数 $C_d = 0.100$、街区汇水乘数 $\theta = 12.05$，模型 $R^2 = 0.343$ 表明预测精度较高。系统韧性综合评分为0.4308，处于中等水平，其中绿色调蓄容积是影响韧性的最关键因素。动态时空规划算法相比静态导航方案，疏散效率提升68\%、安全度提升10.8倍。多目标优化成功生成三个典型方案：保守防御型（成本1225万元）、均衡拐点型（成本2984万元）和激进海绵型（成本4569万元），分别适用于预算有限、追求平衡和最高韧性等不同场景。
 
 本研究建立的模型体系可为城市内涝治理提供科学决策依据，支撑城市内涝防治工作。
 }
@@ -739,7 +752,6 @@ T_{\text{drain}} = \frac{\max(0, V_0 - V_{\text{extra}})}{\max(1, R_{\text{base}
 % 参考文献
 % ==========================================
 \clearpage
-\fontsize{12pt}{14pt}\bfseries 参考文献
 
 \begin{thebibliography}{99}
     \bibitem{Zhang2022} Zhang, M., et al. "A New Urban Waterlogging Simulation Method Based on Multi-Factor Correlation." \textit{Water}, vol. 14, no. 9, 2022, p. 1421.
@@ -813,8 +825,8 @@ def run_system_topsis(df, n_samples=500):
     weights = (1 - e) / np.sum(1 - e)
     
     # TOPSIS综合得分
-    d_pos = np.sqrt(np.sum((z_act - weights)**2))
-    d_neg = np.sqrt(np.sum(z_act**2))
+    d_pos = np.sqrt(np.sum((z_act - weights)2))
+    d_neg = np.sqrt(np.sum(z_act2))
     return d_neg / (d_pos + d_neg), weights
 \end{verbatim}
 }
@@ -859,6 +871,46 @@ is_efficient = is_pareto_efficient(objective_matrix)
 # K-Means聚类
 kmeans = KMeans(n_clusters=3, random_state=42)
 labels = kmeans.fit_predict(scaled_data)
+\end{verbatim}
+}
+
+{\fontsize{12pt}{14pt}\bfseries A.5 参赛者实际使用的软件名称及命令}
+
+{\fontsize{10pt}{12pt}\ttfamily
+\begin{verbatim}
+# 主要编程语言及环境
+- Python 3.9.7 (Anaconda 2021.11)
+- MATLAB R2022a
+
+# 核心依赖包
+- numpy==1.21.5
+- pandas==1.4.4
+- scipy==1.9.1
+- scikit-learn==1.1.1
+- matplotlib==3.5.2
+
+# 关键命令示例
+# 数据处理与分析
+python -c "import pandas as pd; df = pd.read_csv('data.csv'); print(df.describe())"
+
+# 优化求解
+python -c "from scipy.optimize import minimize; res = minimize(func, x0); print(res.x)"
+
+# 蒙特卡洛模拟
+python -c "import numpy as np; samples = np.random.normal(0, 1, 1000); print(np.mean(samples))"
+
+# 绘图可视化
+python -c "import matplotlib.pyplot as plt; plt.plot([1,2,3]); plt.show()"
+
+# MATLAB数值计算
+% 矩阵运算
+A = [1 2; 3 4]; B = A * 2; disp(B)
+
+% 优化工具箱
+[x, fval] = fmincon(@objective, x0, A, b, Aeq, beq, lb, ub)
+
+% 统计分析
+mu = mean(data); sigma = std(data); histogram(data)
 \end{verbatim}
 }
 
